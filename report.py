@@ -587,24 +587,68 @@ def build_html(qualified, watchlist, sector_label, n_scanned) -> str:
 </html>"""
 
 
+# ── PDF export ────────────────────────────────────────────────────────────────
+
+def html_to_pdf(html_path: str) -> str | None:
+    import subprocess, shutil
+    pdf_path = html_path.replace(".html", ".pdf")
+    chrome = (
+        "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
+    )
+    if not shutil.which(chrome) and not __import__('os').path.exists(chrome):
+        console.print("  [yellow]PDF skipped: Chrome not found[/yellow]")
+        return None
+    try:
+        result = subprocess.run(
+            [chrome, "--headless", "--disable-gpu", "--no-sandbox",
+             "--allow-file-access-from-files", "--disable-web-security",
+             f"--print-to-pdf={pdf_path}", "--print-to-pdf-no-header",
+             f"file://{html_path}"],
+            capture_output=True, timeout=60
+        )
+        if __import__('os').path.exists(pdf_path) and __import__('os').path.getsize(pdf_path) > 1000:
+            return pdf_path
+        console.print(f"  [yellow]PDF generation failed[/yellow]")
+        return None
+    except Exception as e:
+        console.print(f"  [yellow]PDF generation failed: {e}[/yellow]")
+        return None
+
+
 # ── Entry point ───────────────────────────────────────────────────────────────
 
 def generate_report(qualified, watchlist, sector_label="All Sectors", n_scanned=0,
-                    output_path=None) -> str:
+                    output_path=None, pdf=False) -> dict[str, str]:
+    """Returns dict with 'html' path and optionally 'pdf' path."""
     html = build_html(qualified, watchlist, sector_label, n_scanned)
     if output_path is None:
-        ts = datetime.now().strftime("%Y%m%d_%H%M")
-        output_path = os.path.join(os.path.dirname(__file__), f"report_{ts}.html")
+        date = datetime.now().strftime("%Y-%m-%d")
+        reports_dir = os.path.join(os.path.dirname(__file__), "reports")
+        os.makedirs(reports_dir, exist_ok=True)
+        output_path = os.path.join(reports_dir, f"{date}_{sector_label.replace('/', '-').replace(' ', '_')}.html")
     with open(output_path, "w", encoding="utf-8") as f:
         f.write(html)
-    return output_path
+    # Always keep a latest.html copy
+    latest_path = os.path.join(os.path.dirname(output_path), "latest.html")
+    with open(latest_path, "w", encoding="utf-8") as f:
+        f.write(html)
+
+    result = {"html": output_path, "latest": latest_path}
+    if pdf:
+        console.print("  Converting to PDF...", style="dim")
+        pdf_path = html_to_pdf(output_path)
+        if pdf_path:
+            result["pdf"] = pdf_path
+    return result
 
 
 def main():
     parser = argparse.ArgumentParser(description="Stock momentum report generator")
-    parser.add_argument("--sector",  type=str)
-    parser.add_argument("--tickers", nargs="+")
-    parser.add_argument("--out",     type=str, help="Output HTML file path")
+    parser.add_argument("--sector",     type=str)
+    parser.add_argument("--tickers",    nargs="+")
+    parser.add_argument("--out",        type=str, help="Output HTML file path")
+    parser.add_argument("--pdf",        action="store_true", help="Also generate PDF")
+    parser.add_argument("--no-browser", action="store_true", help="Don't open browser (for cron)")
     args = parser.parse_args()
 
     console.print()
@@ -623,12 +667,16 @@ def main():
     from screener import ALL_TICKERS, UNIVERSE
     n = len(tickers) if tickers else len(UNIVERSE.get(sector, ALL_TICKERS))
 
-    path = generate_report(qualified, watchlist, label, n_scanned=n,
-                           output_path=args.out)
+    paths = generate_report(qualified, watchlist, label, n_scanned=n,
+                            output_path=args.out, pdf=args.pdf)
 
-    console.print(f"\n[bold green]✅ Report saved:[/bold green] {path}")
-    webbrowser.open(f"file://{path}")
-    console.print("[dim]Opening in browser...[/dim]\n")
+    console.print(f"\n[bold green]✅ HTML:[/bold green] {paths['html']}")
+    if "pdf" in paths:
+        console.print(f"[bold green]✅ PDF: [/bold green] {paths['pdf']}")
+
+    if not args.no_browser:
+        webbrowser.open(f"file://{paths['html']}")
+        console.print("[dim]Opening in browser...[/dim]\n")
 
 
 if __name__ == "__main__":
