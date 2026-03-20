@@ -590,29 +590,51 @@ def build_html(qualified, watchlist, sector_label, n_scanned) -> str:
 # ── PDF export ────────────────────────────────────────────────────────────────
 
 def html_to_pdf(html_path: str) -> str | None:
-    import subprocess, shutil
+    import subprocess, shutil, threading, socket
+    from http.server import HTTPServer, SimpleHTTPRequestHandler
+
     pdf_path = html_path.replace(".html", ".pdf")
-    chrome = (
-        "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
-    )
-    if not shutil.which(chrome) and not __import__('os').path.exists(chrome):
+    chrome = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
+    if not os.path.exists(chrome):
         console.print("  [yellow]PDF skipped: Chrome not found[/yellow]")
         return None
+
+    # Serve the HTML directory via local HTTP so Chrome can load it properly
+    html_dir = os.path.dirname(os.path.abspath(html_path))
+    html_file = os.path.basename(html_path)
+
+    # Pick a free port
+    with socket.socket() as s:
+        s.bind(("", 0))
+        port = s.getsockname()[1]
+
+    class QuietHandler(SimpleHTTPRequestHandler):
+        def __init__(self, *a, **kw):
+            super().__init__(*a, directory=html_dir, **kw)
+        def log_message(self, *_):
+            pass
+
+    server = HTTPServer(("127.0.0.1", port), QuietHandler)
+    thread = threading.Thread(target=server.serve_forever)
+    thread.daemon = True
+    thread.start()
+
     try:
+        url = f"http://127.0.0.1:{port}/{html_file}"
         result = subprocess.run(
             [chrome, "--headless", "--disable-gpu", "--no-sandbox",
-             "--allow-file-access-from-files", "--disable-web-security",
-             f"--print-to-pdf={pdf_path}", "--print-to-pdf-no-header",
-             f"file://{html_path}"],
-            capture_output=True, timeout=60
+             "--print-to-pdf-no-header", f"--print-to-pdf={pdf_path}", url],
+            capture_output=True, timeout=60,
         )
-        if __import__('os').path.exists(pdf_path) and __import__('os').path.getsize(pdf_path) > 1000:
+        if os.path.exists(pdf_path) and os.path.getsize(pdf_path) > 1000:
             return pdf_path
-        console.print(f"  [yellow]PDF generation failed[/yellow]")
+        console.print("  [yellow]PDF generation failed[/yellow]")
         return None
     except Exception as e:
         console.print(f"  [yellow]PDF generation failed: {e}[/yellow]")
         return None
+    finally:
+        server.shutdown()
 
 
 # ── Entry point ───────────────────────────────────────────────────────────────
