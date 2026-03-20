@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Stock Momentum Report — 2026-03-20</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+       background: #f0f4f8; color: #2d3748; padding: 32px 16px; }
+.container { max-width: 920px; margin: 0 auto; }
+
+/* Header */
+.report-header { background: linear-gradient(135deg,#1a365d,#2b6cb0);
+  border-radius: 16px; padding: 32px 36px; color: #fff; margin-bottom: 28px; }
+.report-header h1 { font-size: 1.8rem; font-weight: 800; letter-spacing: -0.5px; }
+.report-meta { margin-top: 10px; opacity: .75; font-size: 0.88rem; }
+.report-meta span { margin-right: 20px; }
+
+/* Summary pills */
+.summary-row { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 28px; }
+.summary-pill { background: #fff; border-radius: 12px; padding: 16px 22px;
+  box-shadow: 0 1px 4px rgba(0,0,0,.08); text-align: center; flex: 1; min-width: 130px; }
+.summary-pill .val { font-size: 1.9rem; font-weight: 800; letter-spacing: -1px; }
+.summary-pill .lbl { font-size: 0.7rem; font-weight: 700; color: #a0aec0;
+  text-transform: uppercase; letter-spacing: .06em; margin-top: 4px; }
+.pill-hot  .val { color: #e53e3e; }
+.pill-watch .val { color: #d69e2e; }
+.pill-scan  .val { color: #3182ce; }
+.pill-top   .val { color: #38a169; }
+
+/* Section titles */
+.section-title { font-size: 1.1rem; font-weight: 800; color: #2d3748;
+  margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+.section-title .badge { font-size: .7rem; padding: 2px 10px; border-radius: 20px;
+  font-weight: 700; text-transform: uppercase; letter-spacing: .05em; }
+.badge-hot   { background: #fff5f5; color: #c53030; }
+.badge-watch { background: #fffff0; color: #b7791f; }
+
+/* Stock cards */
+.stock-card { background: #fff; border-radius: 16px;
+  box-shadow: 0 1px 4px rgba(0,0,0,.08); margin-bottom: 18px; overflow: hidden; }
+.card-hot   { border-left: 5px solid #e53e3e; }
+.card-watch { border-left: 5px solid #d69e2e; }
+
+.card-top { display: flex; align-items: flex-start; gap: 20px;
+  padding: 22px 24px 18px; flex-wrap: wrap; }
+.card-identity { flex: 1; min-width: 200px; }
+.card-ticker { font-size: 1.5rem; font-weight: 900; color: #1a202c; letter-spacing: -0.5px; }
+.card-name   { font-size: 0.88rem; color: #718096; margin-top: 2px; }
+.card-tags   { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
+.tag { font-size: .68rem; font-weight: 700; padding: 2px 8px; border-radius: 10px;
+  background: #edf2f7; color: #4a5568; }
+
+.card-chart  { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
+.chart-label { font-size: 0.65rem; color: #a0aec0; font-weight: 600;
+  text-transform: uppercase; letter-spacing: .05em; }
+
+.card-metrics { display: flex; gap: 28px; flex-wrap: wrap;
+  padding: 0 24px 16px; }
+.metric { display: flex; flex-direction: column; gap: 3px; }
+.metric .m-val { font-size: 1.15rem; font-weight: 800; color: #2d3748; }
+.metric .m-lbl { font-size: .65rem; font-weight: 700; color: #a0aec0;
+  text-transform: uppercase; letter-spacing: .06em; }
+.green { color: #38a169 !important; }
+.red   { color: #e53e3e !important; }
+.blue  { color: #3182ce !important; }
+.orange{ color: #d69e2e !important; }
+
+/* Up-day pips */
+.pips { display: flex; gap: 3px; margin-top: 4px; }
+.pip { width: 10px; height: 10px; border-radius: 2px; }
+.pip-up   { background: #48bb78; }
+.pip-down { background: #e2e8f0; }
+
+/* Signals */
+.card-signals { padding: 14px 24px; background: #f7fafc;
+  border-top: 1px solid #e2e8f0; }
+.signals-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px,1fr));
+  gap: 8px; }
+.signal-row { display: flex; gap: 8px; align-items: flex-start;
+  font-size: .84rem; color: #4a5568; line-height: 1.4; }
+.signal-icon { font-size: .95rem; flex-shrink: 0; margin-top: 1px; }
+
+/* Headline */
+.card-headline { padding: 12px 24px 0;
+  font-size: .88rem; font-weight: 700; color: #4a5568; }
+
+/* Narrative */
+.card-narrative { padding: 14px 24px 20px; font-size: .88rem;
+  color: #4a5568; line-height: 1.65;
+  border-top: 1px solid #e2e8f0; }
+.card-narrative b { color: #2d3748; }
+
+/* Strategy box */
+.strategy-box { background: #fff; border-radius: 16px; padding: 28px 32px;
+  box-shadow: 0 1px 4px rgba(0,0,0,.08); margin-top: 12px; }
+.strategy-box h3 { font-size: 1rem; font-weight: 800; color: #2d3748;
+  margin-bottom: 14px; }
+.strategy-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px,1fr));
+  gap: 14px; }
+.strategy-item { padding: 14px 16px; border-radius: 10px; border-left: 3px solid; }
+.si-entry  { background:#f0fff4; border-color:#38a169; }
+.si-stop   { background:#fff5f5; border-color:#e53e3e; }
+.si-exit   { background:#ebf8ff; border-color:#3182ce; }
+.si-size   { background:#fffff0; border-color:#d69e2e; }
+.strategy-item h4 { font-size:.78rem; font-weight:800; text-transform:uppercase;
+  letter-spacing:.05em; color:#4a5568; margin-bottom:6px; }
+.strategy-item p  { font-size:.83rem; color:#4a5568; line-height:1.5; }
+
+/* Footer */
+.report-footer { text-align:center; margin-top:36px; font-size:.78rem; color:#a0aec0; }
+
+@media (max-width:600px) {
+  .card-top { flex-direction: column; }
+  .card-metrics { gap: 16px; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="report-header">
+    <h1>📈 Stock Momentum Report</h1>
+    <div class="report-meta">
+      <span>📅 March 20, 2026 at 12:13</span>
+      <span>🔭 Universe: Biotech</span>
+      <span>⚙️ Criteria: ≥5 up days / 10 &amp; &gt;10% 10-day return</span>
+    </div>
+  </div>
+
+  
+<div class="summary-row">
+  <div class="summary-pill pill-scan">
+    <div class="val">13</div><div class="lbl">Stocks Scanned</div>
+  </div>
+  <div class="summary-pill pill-hot">
+    <div class="val">1</div><div class="lbl">High Potential</div>
+  </div>
+  <div class="summary-pill pill-watch">
+    <div class="val">9</div><div class="lbl">Watchlist</div>
+  </div>
+  <div class="summary-pill pill-top">
+    <div class="val" style="font-size:1.3rem">+24.0% EDIT</div><div class="lbl">Top Mover</div>
+  </div>
+</div>
+  
+<div class="section-title">🔥 High Potential Stocks
+  <span class="badge badge-hot">≥5 up days & >10% return</span>
+</div>
+
+<div class="stock-card card-hot">
+  <div class="card-top">
+    <div class="card-identity">
+      <div class="card-ticker">EDIT <span class="badge badge-hot">🔥 High Potential</span></div>
+      <div class="card-name">Editas Medicine, Inc.</div>
+      <div class="card-tags"><span class="tag">Healthcare</span><span class="tag">Biotechnology</span></div>
+    </div>
+    <div class="card-chart">
+      <div class="chart-label">10-day price</div>
+      <svg width="200" height="50" viewBox="0 0 200 50" xmlns="http://www.w3.org/2000/svg"><polygon points="4.0,46.0 23.2,40.0 42.4,22.5 61.6,5.1 80.8,4.0 100.0,10.5 119.2,16.0 138.4,10.5 157.6,14.9 176.8,20.9 196.0,20.9 196.0,46.0 4.0,46.0" fill="#3182ce22"/><polyline points="4.0,46.0 23.2,40.0 42.4,22.5 61.6,5.1 80.8,4.0 100.0,10.5 119.2,16.0 138.4,10.5 157.6,14.9 176.8,20.9 196.0,20.9" fill="none" stroke="#3182ce" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/><circle cx="196.0" cy="20.9" r="3.5" fill="#3182ce"/></svg>
+      <div class="chart-label">daily returns</div>
+      <svg width="200" height="36" viewBox="0 0 200 36" xmlns="http://www.w3.org/2000/svg"><line x1="0" y1="18.0" x2="200" y2="18.0" stroke="#e2e8f0" stroke-width="1"/><rect x="0.0" y="12.5" width="18.2" height="5.5" rx="1" fill="#48bb78"/><rect x="20.2" y="2.0" width="18.2" height="16.0" rx="1" fill="#48bb78"/><rect x="40.4" y="4.2" width="18.2" height="13.8" rx="1" fill="#48bb78"/><rect x="60.6" y="17.2" width="18.2" height="0.8" rx="1" fill="#48bb78"/><rect x="80.8" y="18.0" width="18.2" height="4.5" rx="1" fill="#fc8181"/><rect x="101.0" y="18.0" width="18.2" height="3.9" rx="1" fill="#fc8181"/><rect x="121.2" y="13.9" width="18.2" height="4.1" rx="1" fill="#48bb78"/><rect x="141.4" y="18.0" width="18.2" height="3.1" rx="1" fill="#fc8181"/><rect x="161.6" y="18.0" width="18.2" height="4.5" rx="1" fill="#fc8181"/><rect x="181.8" y="18.0" width="18.2" height="0.0" rx="1" fill="#48bb78"/></svg>
+    </div>
+  </div>
+
+  <div class="card-metrics">
+    <div class="metric">
+      <div class="m-val green">+24.0%</div>
+      <div class="m-lbl">10d Return</div>
+    </div>
+    <div class="metric">
+      <div class="m-val">$2.35</div>
+      <div class="m-lbl">Price</div>
+    </div>
+    <div class="metric">
+      <div class="m-val">5/10</div>
+      <div class="m-lbl">Up Days</div>
+      <div class="pips"><div class="pip pip-up" title="+day"></div><div class="pip pip-up" title="+day"></div><div class="pip pip-up" title="+day"></div><div class="pip pip-up" title="+day"></div><div class="pip pip-up" title="+day"></div><div class="pip pip-down"></div><div class="pip pip-down"></div><div class="pip pip-down"></div><div class="pip pip-down"></div><div class="pip pip-down"></div></div>
+    </div>
+    <div class="metric">
+      <div class="m-val orange">1.3×</div>
+      <div class="m-lbl">Volume vs Avg</div>
+    </div>
+    <div class="metric">
+      <div class="m-val green">54.0</div>
+      <div class="m-lbl">RSI</div>
+    </div>
+    <div class="metric">
+      <div class="m-val orange">-11.7%</div>
+      <div class="m-lbl">vs 52w High</div>
+    </div>
+  </div>
+
+  <div class="card-headline">💡 High-conviction momentum move with broad participation</div>
+
+  <div class="card-signals">
+    <div class="signals-grid"><div class="signal-row"><span class="signal-icon">✅</span><span>Closed higher on <b>5/10</b> recent trading days — meets momentum threshold.</span></div><div class="signal-row"><span class="signal-icon">✅</span><span><b>+24.0%</b> gain in 10 trading days — exceptional near-term return.</span></div><div class="signal-row"><span class="signal-icon">⚠️</span><span>Volume at <b>1.3×</b> average — normal, no unusual activity yet.</span></div><div class="signal-row"><span class="signal-icon">⚠️</span><span>RSI at <b>54.0</b> — neutral; momentum not yet confirmed.</span></div><div class="signal-row"><span class="signal-icon">⚠️</span><span>Trading <b>11.7%</b> below its 52-week high — recovering but not at highs.</span></div></div>
+  </div>
+
+  <div class="card-narrative">Editas Medicine, Inc. (Healthcare — Biotechnology) has demonstrated strong short-term momentum: up <b>24.0%</b> over the past 10 trading days with <b>5 of those 10 days</b> closing higher. This pattern, combined with average volume, indicates the move has broad market participation. The RSI of <b>54.0</b> sits in the healthy momentum zone without being overbought, and the stock is currently 12% below its 52-week high. <b>Strategy:</b> Look for a 1–3 day pullback to the 10-day moving average as a lower-risk entry. Set a hard stop at −8% from entry and take partial profit at +20%.</div>
+</div>
+
+  
+<div class="section-title" style="margin-top:32px">👀 Watchlist
+  <span class="badge badge-watch">approaching criteria</span>
+</div>
+
+<div class="stock-card card-watch">
+  <div class="card-top">
+    <div class="card-identity">
+      <div class="card-ticker">BIIB <span class="badge badge-watch">👀 Watchlist</span></div>
+      <div class="card-name">Biogen Inc.</div>
+      <div class="card-tags"><span class="tag">Healthcare</span><span class="tag">Drug Manufacturers - General</span></div>
+    </div>
+    <div class="card-chart">
+      <div class="chart-label">10-day price</div>
+      <svg width="200" height="50" viewBox="0 0 200 50" xmlns="http://www.w3.org/2000/svg"><polygon points="4.0,15.3 23.2,30.4 42.4,14.5 61.6,13.7 80.8,4.0 100.0,30.2 119.2,46.0 138.4,38.0 157.6,28.4 176.8,42.4 196.0,37.3 196.0,46.0 4.0,46.0" fill="#e53e3e22"/><polyline points="4.0,15.3 23.2,30.4 42.4,14.5 61.6,13.7 80.8,4.0 100.0,30.2 119.2,46.0 138.4,38.0 157.6,28.4 176.8,42.4 196.0,37.3" fill="none" stroke="#e53e3e" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/><circle cx="196.0" cy="37.3" r="3.5" fill="#e53e3e"/></svg>
+      <div class="chart-label">daily returns</div>
+      <svg width="200" height="36" viewBox="0 0 200 36" xmlns="http://www.w3.org/2000/svg"><line x1="0" y1="18.0" x2="200" y2="18.0" stroke="#e2e8f0" stroke-width="1"/><rect x="0.0" y="18.0" width="18.2" height="9.3" rx="1" fill="#fc8181"/><rect x="20.2" y="8.1" width="18.2" height="9.9" rx="1" fill="#48bb78"/><rect x="40.4" y="17.5" width="18.2" height="0.5" rx="1" fill="#48bb78"/><rect x="60.6" y="12.0" width="18.2" height="6.0" rx="1" fill="#48bb78"/><rect x="80.8" y="18.0" width="18.2" height="16.0" rx="1" fill="#fc8181"/><rect x="101.0" y="18.0" width="18.2" height="9.9" rx="1" fill="#fc8181"/><rect x="121.2" y="12.9" width="18.2" height="5.1" rx="1" fill="#48bb78"/><rect x="141.4" y="11.9" width="18.2" height="6.1" rx="1" fill="#48bb78"/><rect x="161.6" y="18.0" width="18.2" height="8.8" rx="1" fill="#fc8181"/><rect x="181.8" y="14.7" width="18.2" height="3.3" rx="1" fill="#48bb78"/></svg>
+    </div>
+  </div>
+
+  <div class="card-metrics">
+    <div class="metric">
+      <div class="m-val red">-2.5%</div>
+      <div class="m-lbl">10d Return</div>
+    </div>
+    <div class="metric">
+      <div class="m-val">$183.41</div>
+      <div class="m-lbl">Price</div>
+    </div>
+    <div class="metric">
+      <div class="m-val">6/10</div>
+      <div class="m-lbl">Up Days</div>
+      <div class="pips"><div class="pip pip-up" title="+day"></div><div class="pip pip-up" title="+day"></div><div class="pip pip-up" title="+day"></div><div class="pip pip-up" title="+day"></div><div class="pip pip-up" title="+day"></div><div class="pip pip-up" title="+day"></div><div class="pip pip-down"></div><div class="pip pip-down"></div><div class="pip pip-down"></div><div class="pip pip-down"></div></div>
+    </div>
+    <div class="metric">
+      <div class="m-val red">0.6×</div>
+      <div class="m-lbl">Volume vs Avg</div>
+    </div>
+    <div class="metric">
+      <div class="m-val orange">39.8</div>
+      <div class="m-lbl">RSI</div>
+    </div>
+    <div class="metric">
+      <div class="m-val green">-8.8%</div>
+      <div class="m-lbl">vs 52w High</div>
+    </div>
+  </div>
+
+  <div class="card-headline">💡 Approaching qualification — needs 12.5% more price gain</div>
+
+  <div class="card-signals">
+    <div class="signals-grid"><div class="signal-row"><span class="signal-icon">✅</span><span>Closed higher on <b>6/10</b> recent trading days — meets momentum threshold.</span></div><div class="signal-row"><span class="signal-icon">❌</span><span><b>-2.5%</b> over 10 days — negative momentum.</span></div><div class="signal-row"><span class="signal-icon">❌</span><span>Volume at <b>0.6×</b> average — below-normal, weak participation.</span></div><div class="signal-row"><span class="signal-icon">❌</span><span>RSI at <b>39.8</b> — weak / oversold territory.</span></div><div class="signal-row"><span class="signal-icon">⚠️</span><span>Trading <b>8.8%</b> below its 52-week high — recovering but not at highs.</span></div></div>
+  </div>
+
+  <div class="card-narrative">Biogen Inc. is on our watchlist for needs 12.5% more price gain (currently +-2.5%). <b>Watch for:</b> continued daily gains and volume staying above average. If momentum continues for 2–3 more sessions, this stock may graduate to the High Potential list.</div>
+</div>
+<div class="stock-card card-watch">
+  <div class="card-top">
+    <div class="card-identity">
+      <div class="card-ticker">RXRX <span class="badge badge-watch">👀 Watchlist</span></div>
+      <div class="card-name">Recursion Pharmaceuticals, Inc.</div>
+      <div class="card-tags"><span class="tag">Healthcare</span><span class="tag">Biotechnology</span></div>
+    </div>
+    <div class="card-chart">
+      <div class="chart-label">10-day price</div>
+      <svg width="200" height="50" viewBox="0 0 200 50" xmlns="http://www.w3.org/2000/svg"><polygon points="4.0,4.0 23.2,17.4 42.4,9.0 61.6,20.8 80.8,19.1 100.0,46.0 119.2,24.2 138.4,29.2 157.6,24.2 176.8,41.0 196.0,32.6 196.0,46.0 4.0,46.0" fill="#e53e3e22"/><polyline points="4.0,4.0 23.2,17.4 42.4,9.0 61.6,20.8 80.8,19.1 100.0,46.0 119.2,24.2 138.4,29.2 157.6,24.2 176.8,41.0 196.0,32.6" fill="none" stroke="#e53e3e" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/><circle cx="196.0" cy="32.6" r="3.5" fill="#e53e3e"/></svg>
+      <div class="chart-label">daily returns</div>
+      <svg width="200" height="36" viewBox="0 0 200 36" xmlns="http://www.w3.org/2000/svg"><line x1="0" y1="18.0" x2="200" y2="18.0" stroke="#e2e8f0" stroke-width="1"/><rect x="0.0" y="18.0" width="18.2" height="7.8" rx="1" fill="#fc8181"/><rect x="20.2" y="13.0" width="18.2" height="5.0" rx="1" fill="#48bb78"/><rect x="40.4" y="18.0" width="18.2" height="6.9" rx="1" fill="#fc8181"/><rect x="60.6" y="17.0" width="18.2" height="1.0" rx="1" fill="#48bb78"/><rect x="80.8" y="18.0" width="18.2" height="16.0" rx="1" fill="#fc8181"/><rect x="101.0" y="4.4" width="18.2" height="13.6" rx="1" fill="#48bb78"/><rect x="121.2" y="18.0" width="18.2" height="3.0" rx="1" fill="#fc8181"/><rect x="141.4" y="15.0" width="18.2" height="3.0" rx="1" fill="#48bb78"/><rect x="161.6" y="18.0" width="18.2" height="10.1" rx="1" fill="#fc8181"/><rect x="181.8" y="12.8" width="18.2" height="5.2" rx="1" fill="#48bb78"/></svg>
+    </div>
+  </div>
+
+  <div class="card-metrics">
+    <div class="metric">
+      <div class="m-val red">-4.8%</div>
+      <div class="m-lbl">10d Return</div>
+    </div>
+    <div class="metric">
+      <div class="m-val">$3.37</div>
+      <div class="m-lbl">Price</div>
+    </div>
+    <div class="metric">
+      <div class="m-val">5/10</div>
+      <div class="m-lbl">Up Days</div>
+      <div class="pips"><div class="pip pip-up" title="+day"></div><div class="pip pip-up" title="+day"></div><div class="pip pip-up" title="+day"></div><div class="pip pip-up" title="+day"></div><div class="pip pip-up" title="+day"></div><div class="pip pip-down"></div><div class="pip pip-down"></div><div class="pip pip-down"></div><div class="pip pip-down"></div><div class="pip pip-down"></div></div>
+    </div>
+    <div class="metric">
+      <div class="m-val red">0.6×</div>
+      <div class="m-lbl">Volume vs Avg</div>
+    </div>
+    <div class="metric">
+      <div class="m-val orange">35.6</div>
+      <div class="m-lbl">RSI</div>
+    </div>
+    <div class="metric">
+      <div class="m-val orange">-32.1%</div>
+      <div class="m-lbl">vs 52w High</div>
+    </div>
+  </div>
+
+  <div class="card-headline">💡 Approaching qualification — needs 14.8% more price gain</div>
+
+  <div class="card-signals">
+    <div class="signals-grid"><div class="signal-row"><span class="signal-icon">✅</span><span>Closed higher on <b>5/10</b> recent trading days — meets momentum threshold.</span></div><div class="signal-row"><span class="signal-icon">❌</span><span><b>-4.8%</b> over 10 days — negative momentum.</span></div><div class="signal-row"><span class="signal-icon">❌</span><span>Volume at <b>0.6×</b> average — below-normal, weak participation.</span></div><div class="signal-row"><span class="signal-icon">❌</span><span>RSI at <b>35.6</b> — weak / oversold territory.</span></div><div class="signal-row"><span class="signal-icon">❌</span><span>Trading <b>32.1%</b> below its 52-week high — significant distance to recover.</span></div></div>
+  </div>
+
+  <div class="card-narrative">Recursion Pharmaceuticals, Inc. is on our watchlist for needs 14.8% more price gain (currently +-4.8%). <b>Watch for:</b> continued daily gains and volume staying above average. If momentum continues for 2–3 more sessions, this stock may graduate to the High Potential list.</div>
+</div>
+<div class="stock-card card-watch">
+  <div class="card-top">
+    <div class="card-identity">
+      <div class="card-ticker">NTLA <span class="badge badge-watch">👀 Watchlist</span></div>
+      <div class="card-name">Intellia Therapeutics, Inc.</div>
+      <div class="card-tags"><span class="tag">Healthcare</span><span class="tag">Biotechnology</span></div>
+    </div>
+    <div class="card-chart">
+      <div class="chart-label">10-day price</div>
+      <svg width="200" height="50" viewBox="0 0 200 50" xmlns="http://www.w3.org/2000/svg"><polygon points="4.0,31.5 23.2,20.7 42.4,4.0 61.6,19.6 80.8,36.7 100.0,42.7 119.2,46.0 138.4,23.0 157.6,19.2 176.8,29.3 196.0,31.5 196.0,46.0 4.0,46.0" fill="#3182ce22"/><polyline points="4.0,31.5 23.2,20.7 42.4,4.0 61.6,19.6 80.8,36.7 100.0,42.7 119.2,46.0 138.4,23.0 157.6,19.2 176.8,29.3 196.0,31.5" fill="none" stroke="#3182ce" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/><circle cx="196.0" cy="31.5" r="3.5" fill="#3182ce"/></svg>
+      <div class="chart-label">daily returns</div>
+      <svg width="200" height="36" viewBox="0 0 200 36" xmlns="http://www.w3.org/2000/svg"><line x1="0" y1="18.0" x2="200" y2="18.0" stroke="#e2e8f0" stroke-width="1"/><rect x="0.0" y="10.7" width="18.2" height="7.3" rx="1" fill="#48bb78"/><rect x="20.2" y="7.0" width="18.2" height="11.0" rx="1" fill="#48bb78"/><rect x="40.4" y="18.0" width="18.2" height="9.9" rx="1" fill="#fc8181"/><rect x="60.6" y="18.0" width="18.2" height="11.2" rx="1" fill="#fc8181"/><rect x="80.8" y="18.0" width="18.2" height="4.0" rx="1" fill="#fc8181"/><rect x="101.0" y="18.0" width="18.2" height="2.3" rx="1" fill="#fc8181"/><rect x="121.2" y="2.0" width="18.2" height="16.0" rx="1" fill="#48bb78"/><rect x="141.4" y="15.5" width="18.2" height="2.5" rx="1" fill="#48bb78"/><rect x="161.6" y="18.0" width="18.2" height="6.6" rx="1" fill="#fc8181"/><rect x="181.8" y="18.0" width="18.2" height="1.5" rx="1" fill="#fc8181"/></svg>
+    </div>
+  </div>
+
+  <div class="card-metrics">
+    <div class="metric">
+      <div class="m-val orange">+0.0%</div>
+      <div class="m-lbl">10d Return</div>
+    </div>
+    <div class="metric">
+      <div class="m-val">$13.15</div>
+      <div class="m-lbl">Price</div>
+    </div>
+    <div class="metric">
+      <div class="m-val">4/10</div>
+      <div class="m-lbl">Up Days</div>
+      <div class="pips"><div class="pip pip-up" title="+day"></div><div class="pip pip-up" title="+day"></div><div class="pip pip-up" title="+day"></div><div class="pip pip-up" title="+day"></div><div class="pip pip-down"></div><div class="pip pip-down"></div><div class="pip pip-down"></div><div class="pip pip-down"></div><div class="pip pip-down"></div><div class="pip pip-down"></div></div>
+    </div>
+    <div class="metric">
+      <div class="m-val red">0.7×</div>
+      <div class="m-lbl">Volume vs Avg</div>
+    </div>
+    <div class="metric">
+      <div class="m-val orange">45.7</div>
+      <div class="m-lbl">RSI</div>
+    </div>
+    <div class="metric">
+      <div class="m-val orange">-17.3%</div>
+      <div class="m-lbl">vs 52w High</div>
+    </div>
+  </div>
+
+  <div class="card-headline">💡 Approaching qualification — needs 1 more up day(s) and 10.0% more price gain</div>
+
+  <div class="card-signals">
+    <div class="signals-grid"><div class="signal-row"><span class="signal-icon">⚠️</span><span>Only <b>4/10</b> up days — trend not yet confirmed.</span></div><div class="signal-row"><span class="signal-icon">⚠️</span><span><b>+0.0%</b> gain in 10 trading days — below 10% threshold yet.</span></div><div class="signal-row"><span class="signal-icon">❌</span><span>Volume at <b>0.7×</b> average — below-normal, weak participation.</span></div><div class="signal-row"><span class="signal-icon">⚠️</span><span>RSI at <b>45.7</b> — neutral; momentum not yet confirmed.</span></div><div class="signal-row"><span class="signal-icon">❌</span><span>Trading <b>17.3%</b> below its 52-week high — significant distance to recover.</span></div></div>
+  </div>
+
+  <div class="card-narrative">Intellia Therapeutics, Inc. is on our watchlist for needs 1 more up day(s) (currently 4/10), needs 10.0% more price gain (currently +0.0%). <b>Watch for:</b> continued daily gains and volume staying above average. If momentum continues for 2–3 more sessions, this stock may graduate to the High Potential list.</div>
+</div>
+<div class="stock-card card-watch">
+  <div class="card-top">
+    <div class="card-identity">
+      <div class="card-ticker">BEAM <span class="badge badge-watch">👀 Watchlist</span></div>
+      <div class="card-name">Beam Therapeutics Inc.</div>
+      <div class="card-tags"><span class="tag">Healthcare</span><span class="tag">Biotechnology</span></div>
+    </div>
+    <div class="card-chart">
+      <div class="chart-label">10-day price</div>
+      <svg width="200" height="50" viewBox="0 0 200 50" xmlns="http://www.w3.org/2000/svg"><polygon points="4.0,39.9 23.2,22.4 42.4,4.0 61.6,30.3 80.8,30.3 100.0,38.7 119.2,46.0 138.4,40.4 157.6,34.6 176.8,43.3 196.0,45.8 196.0,46.0 4.0,46.0" fill="#e53e3e22"/><polyline points="4.0,39.9 23.2,22.4 42.4,4.0 61.6,30.3 80.8,30.3 100.0,38.7 119.2,46.0 138.4,40.4 157.6,34.6 176.8,43.3 196.0,45.8" fill="none" stroke="#e53e3e" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/><circle cx="196.0" cy="45.8" r="3.5" fill="#e53e3e"/></svg>
+      <div class="chart-label">daily returns</div>
+      <svg width="200" height="36" viewBox="0 0 200 36" xmlns="http://www.w3.org/2000/svg"><line x1="0" y1="18.0" x2="200" y2="18.0" stroke="#e2e8f0" stroke-width="1"/><rect x="0.0" y="6.5" width="18.2" height="11.5" rx="1" fill="#48bb78"/><rect x="20.2" y="6.3" width="18.2" height="11.7" rx="1" fill="#48bb78"/><rect x="40.4" y="18.0" width="18.2" height="16.0" rx="1" fill="#fc8181"/><rect x="60.6" y="18.0" width="18.2" height="0.0" rx="1" fill="#48bb78"/><rect x="80.8" y="18.0" width="18.2" height="5.4" rx="1" fill="#fc8181"/><rect x="101.0" y="18.0" width="18.2" height="4.8" rx="1" fill="#fc8181"/><rect x="121.2" y="14.2" width="18.2" height="3.8" rx="1" fill="#48bb78"/><rect x="141.4" y="14.2" width="18.2" height="3.8" rx="1" fill="#48bb78"/><rect x="161.6" y="18.0" width="18.2" height="5.6" rx="1" fill="#fc8181"/><rect x="181.8" y="18.0" width="18.2" height="1.7" rx="1" fill="#fc8181"/></svg>
+    </div>
+  </div>
+
+  <div class="card-metrics">
+    <div class="metric">
+      <div class="m-val red">-1.4%</div>
+      <div class="m-lbl">10d Return</div>
+    </div>
+    <div class="metric">
+      <div class="m-val">$25.17</div>
+      <div class="m-lbl">Price</div>
+    </div>
+    <div class="metric">
+      <div class="m-val">4/10</div>
+      <div class="m-lbl">Up Days</div>
+      <div class="pips"><div class="pip pip-up" title="+day"></div><div class="pip pip-up" title="+day"></div><div class="pip pip-up" title="+day"></div><div class="pip pip-up" title="+day"></div><div class="pip pip-down"></div><div class="pip pip-down"></div><div class="pip pip-down"></div><div class="pip pip-down"></div><div class="pip pip-down"></div><div class="pip pip-down"></div></div>
+    </div>
+    <div class="metric">
+      <div class="m-val red">0.8×</div>
+      <div class="m-lbl">Volume vs Avg</div>
+    </div>
+    <div class="metric">
+      <div class="m-val orange">33.1</div>
+      <div class="m-lbl">RSI</div>
+    </div>
+    <div class="metric">
+      <div class="m-val orange">-26.5%</div>
+      <div class="m-lbl">vs 52w High</div>
+    </div>
+  </div>
+
+  <div class="card-headline">💡 Approaching qualification — needs 1 more up day(s) and 11.4% more price gain</div>
+
+  <div class="card-signals">
+    <div class="signals-grid"><div class="signal-row"><span class="signal-icon">⚠️</span><span>Only <b>4/10</b> up days — trend not yet confirmed.</span></div><div class="signal-row"><span class="signal-icon">❌</span><span><b>-1.4%</b> over 10 days — negative momentum.</span></div><div class="signal-row"><span class="signal-icon">❌</span><span>Volume at <b>0.8×</b> average — below-normal, weak participation.</span></div><div class="signal-row"><span class="signal-icon">❌</span><span>RSI at <b>33.1</b> — weak / oversold territory.</span></div><div class="signal-row"><span class="signal-icon">❌</span><span>Trading <b>26.5%</b> below its 52-week high — significant distance to recover.</span></div></div>
+  </div>
+
+  <div class="card-narrative">Beam Therapeutics Inc. is on our watchlist for needs 1 more up day(s) (currently 4/10), needs 11.4% more price gain (currently +-1.4%). <b>Watch for:</b> continued daily gains and volume staying above average. If momentum continues for 2–3 more sessions, this stock may graduate to the High Potential list.</div>
+</div>
+<div class="stock-card card-watch">
+  <div class="card-top">
+    <div class="card-identity">
+      <div class="card-ticker">GILD <span class="badge badge-watch">👀 Watchlist</span></div>
+      <div class="card-name">Gilead Sciences, Inc.</div>
+      <div class="card-tags"><span class="tag">Healthcare</span><span class="tag">Drug Manufacturers - General</span></div>
+    </div>
+    <div class="card-chart">
+      <div class="chart-label">10-day price</div>
+      <svg width="200" height="50" viewBox="0 0 200 50" xmlns="http://www.w3.org/2000/svg"><polygon points="4.0,25.6 23.2,33.2 42.4,16.2 61.6,4.0 80.8,20.1 100.0,25.2 119.2,21.3 138.4,19.9 157.6,25.1 176.8,44.9 196.0,46.0 196.0,46.0 4.0,46.0" fill="#e53e3e22"/><polyline points="4.0,25.6 23.2,33.2 42.4,16.2 61.6,4.0 80.8,20.1 100.0,25.2 119.2,21.3 138.4,19.9 157.6,25.1 176.8,44.9 196.0,46.0" fill="none" stroke="#e53e3e" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/><circle cx="196.0" cy="46.0" r="3.5" fill="#e53e3e"/></svg>
+      <div class="chart-label">daily returns</div>
+      <svg width="200" height="36" viewBox="0 0 200 36" xmlns="http://www.w3.org/2000/svg"><line x1="0" y1="18.0" x2="200" y2="18.0" stroke="#e2e8f0" stroke-width="1"/><rect x="0.0" y="18.0" width="18.2" height="6.2" rx="1" fill="#fc8181"/><rect x="20.2" y="4.0" width="18.2" height="14.0" rx="1" fill="#48bb78"/><rect x="40.4" y="8.2" width="18.2" height="9.8" rx="1" fill="#48bb78"/><rect x="60.6" y="18.0" width="18.2" height="12.8" rx="1" fill="#fc8181"/><rect x="80.8" y="18.0" width="18.2" height="4.0" rx="1" fill="#fc8181"/><rect x="101.0" y="14.9" width="18.2" height="3.1" rx="1" fill="#48bb78"/><rect x="121.2" y="16.9" width="18.2" height="1.1" rx="1" fill="#48bb78"/><rect x="141.4" y="18.0" width="18.2" height="4.2" rx="1" fill="#fc8181"/><rect x="161.6" y="18.0" width="18.2" height="16.0" rx="1" fill="#fc8181"/><rect x="181.8" y="18.0" width="18.2" height="1.0" rx="1" fill="#fc8181"/></svg>
+    </div>
+  </div>
+
+  <div class="card-metrics">
+    <div class="metric">
+      <div class="m-val red">-2.2%</div>
+      <div class="m-lbl">10d Return</div>
+    </div>
+    <div class="metric">
+      <div class="m-val">$141.11</div>
+      <div class="m-lbl">Price</div>
+    </div>
+    <div class="metric">
+      <div class="m-val">4/10</div>
+      <div class="m-lbl">Up Days</div>
+      <div class="pips"><div class="pip pip-up" title="+day"></div><div class="pip pip-up" title="+day"></div><div class="pip pip-up" title="+day"></div><div class="pip pip-up" title="+day"></div><div class="pip pip-down"></div><div class="pip pip-down"></div><div class="pip pip-down"></div><div class="pip pip-down"></div><div class="pip pip-down"></div><div class="pip pip-down"></div></div>
+    </div>
+    <div class="metric">
+      <div class="m-val red">0.7×</div>
+      <div class="m-lbl">Volume vs Avg</div>
+    </div>
+    <div class="metric">
+      <div class="m-val orange">33.2</div>
+      <div class="m-lbl">RSI</div>
+    </div>
+    <div class="metric">
+      <div class="m-val green">-8.9%</div>
+      <div class="m-lbl">vs 52w High</div>
+    </div>
+  </div>
+
+  <div class="card-headline">💡 Approaching qualification — needs 1 more up day(s) and 12.2% more price gain</div>
+
+  <div class="card-signals">
+    <div class="signals-grid"><div class="signal-row"><span class="signal-icon">⚠️</span><span>Only <b>4/10</b> up days — trend not yet confirmed.</span></div><div class="signal-row"><span class="signal-icon">❌</span><span><b>-2.2%</b> over 10 days — negative momentum.</span></div><div class="signal-row"><span class="signal-icon">❌</span><span>Volume at <b>0.7×</b> average — below-normal, weak participation.</span></div><div class="signal-row"><span class="signal-icon">❌</span><span>RSI at <b>33.2</b> — weak / oversold territory.</span></div><div class="signal-row"><span class="signal-icon">⚠️</span><span>Trading <b>8.9%</b> below its 52-week high — recovering but not at highs.</span></div></div>
+  </div>
+
+  <div class="card-narrative">Gilead Sciences, Inc. is on our watchlist for needs 1 more up day(s) (currently 4/10), needs 12.2% more price gain (currently +-2.2%). <b>Watch for:</b> continued daily gains and volume staying above average. If momentum continues for 2–3 more sessions, this stock may graduate to the High Potential list.</div>
+</div>
+<div class="stock-card card-watch">
+  <div class="card-top">
+    <div class="card-identity">
+      <div class="card-ticker">MRNA <span class="badge badge-watch">👀 Watchlist</span></div>
+      <div class="card-name">Moderna</div>
+      <div class="card-tags"><span class="tag">Biotech</span><span class="tag">mRNA Vaccines</span></div>
+    </div>
+    <div class="card-chart">
+      <div class="chart-label">10-day price</div>
+      <svg width="200" height="50" viewBox="0 0 200 50" xmlns="http://www.w3.org/2000/svg"><polygon points="4.0,29.0 23.2,44.2 42.4,6.7 61.6,15.6 80.8,4.0 100.0,34.1 119.2,43.8 138.4,35.0 157.6,27.8 176.8,45.6 196.0,46.0 196.0,46.0 4.0,46.0" fill="#e53e3e22"/><polyline points="4.0,29.0 23.2,44.2 42.4,6.7 61.6,15.6 80.8,4.0 100.0,34.1 119.2,43.8 138.4,35.0 157.6,27.8 176.8,45.6 196.0,46.0" fill="none" stroke="#e53e3e" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/><circle cx="196.0" cy="46.0" r="3.5" fill="#e53e3e"/></svg>
+      <div class="chart-label">daily returns</div>
+      <svg width="200" height="36" viewBox="0 0 200 36" xmlns="http://www.w3.org/2000/svg"><line x1="0" y1="18.0" x2="200" y2="18.0" stroke="#e2e8f0" stroke-width="1"/><rect x="0.0" y="18.0" width="18.2" height="6.3" rx="1" fill="#fc8181"/><rect x="20.2" y="2.0" width="18.2" height="16.0" rx="1" fill="#48bb78"/><rect x="40.4" y="18.0" width="18.2" height="3.5" rx="1" fill="#fc8181"/><rect x="60.6" y="13.3" width="18.2" height="4.7" rx="1" fill="#48bb78"/><rect x="80.8" y="18.0" width="18.2" height="12.0" rx="1" fill="#fc8181"/><rect x="101.0" y="18.0" width="18.2" height="4.0" rx="1" fill="#fc8181"/><rect x="121.2" y="14.3" width="18.2" height="3.7" rx="1" fill="#48bb78"/><rect x="141.4" y="15.0" width="18.2" height="3.0" rx="1" fill="#48bb78"/><rect x="161.6" y="18.0" width="18.2" height="7.4" rx="1" fill="#fc8181"/><rect x="181.8" y="18.0" width="18.2" height="0.2" rx="1" fill="#fc8181"/></svg>
+    </div>
+  </div>
+
+  <div class="card-metrics">
+    <div class="metric">
+      <div class="m-val red">-2.7%</div>
+      <div class="m-lbl">10d Return</div>
+    </div>
+    <div class="metric">
+      <div class="m-val">$52.37</div>
+      <div class="m-lbl">Price</div>
+    </div>
+    <div class="metric">
+      <div class="m-val">4/10</div>
+      <div class="m-lbl">Up Days</div>
+      <div class="pips"><div class="pip pip-up" title="+day"></div><div class="pip pip-up" title="+day"></div><div class="pip pip-up" title="+day"></div><div class="pip pip-up" title="+day"></div><div class="pip pip-down"></div><div class="pip pip-down"></div><div class="pip pip-down"></div><div class="pip pip-down"></div><div class="pip pip-down"></div><div class="pip pip-down"></div></div>
+    </div>
+    <div class="metric">
+      <div class="m-val red">0.7×</div>
+      <div class="m-lbl">Volume vs Avg</div>
+    </div>
+    <div class="metric">
+      <div class="m-val orange">47.9</div>
+      <div class="m-lbl">RSI</div>
+    </div>
+    <div class="metric">
+      <div class="m-val green">-9.4%</div>
+      <div class="m-lbl">vs 52w High</div>
+    </div>
+  </div>
+
+  <div class="card-headline">💡 Approaching qualification — needs 1 more up day(s) and 12.7% more price gain</div>
+
+  <div class="card-signals">
+    <div class="signals-grid"><div class="signal-row"><span class="signal-icon">⚠️</span><span>Only <b>4/10</b> up days — trend not yet confirmed.</span></div><div class="signal-row"><span class="signal-icon">❌</span><span><b>-2.7%</b> over 10 days — negative momentum.</span></div><div class="signal-row"><span class="signal-icon">❌</span><span>Volume at <b>0.7×</b> average — below-normal, weak participation.</span></div><div class="signal-row"><span class="signal-icon">⚠️</span><span>RSI at <b>47.9</b> — neutral; momentum not yet confirmed.</span></div><div class="signal-row"><span class="signal-icon">⚠️</span><span>Trading <b>9.4%</b> below its 52-week high — recovering but not at highs.</span></div></div>
+  </div>
+
+  <div class="card-narrative">Moderna is on our watchlist for needs 1 more up day(s) (currently 4/10), needs 12.7% more price gain (currently +-2.7%). <b>Watch for:</b> continued daily gains and volume staying above average. If momentum continues for 2–3 more sessions, this stock may graduate to the High Potential list.</div>
+</div>
+<div class="stock-card card-watch">
+  <div class="card-top">
+    <div class="card-identity">
+      <div class="card-ticker">ALNY <span class="badge badge-watch">👀 Watchlist</span></div>
+      <div class="card-name">Alnylam Pharmaceuticals, Inc.</div>
+      <div class="card-tags"><span class="tag">Healthcare</span><span class="tag">Biotechnology</span></div>
+    </div>
+    <div class="card-chart">
+      <div class="chart-label">10-day price</div>
+      <svg width="200" height="50" viewBox="0 0 200 50" xmlns="http://www.w3.org/2000/svg"><polygon points="4.0,14.4 23.2,13.9 42.4,4.0 61.6,8.1 80.8,14.6 100.0,25.4 119.2,38.2 138.4,19.7 157.6,14.7 176.8,33.6 196.0,46.0 196.0,46.0 4.0,46.0" fill="#e53e3e22"/><polyline points="4.0,14.4 23.2,13.9 42.4,4.0 61.6,8.1 80.8,14.6 100.0,25.4 119.2,38.2 138.4,19.7 157.6,14.7 176.8,33.6 196.0,46.0" fill="none" stroke="#e53e3e" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/><circle cx="196.0" cy="46.0" r="3.5" fill="#e53e3e"/></svg>
+      <div class="chart-label">daily returns</div>
+      <svg width="200" height="36" viewBox="0 0 200 36" xmlns="http://www.w3.org/2000/svg"><line x1="0" y1="18.0" x2="200" y2="18.0" stroke="#e2e8f0" stroke-width="1"/><rect x="0.0" y="17.5" width="18.2" height="0.5" rx="1" fill="#48bb78"/><rect x="20.2" y="9.7" width="18.2" height="8.3" rx="1" fill="#48bb78"/><rect x="40.4" y="18.0" width="18.2" height="3.4" rx="1" fill="#fc8181"/><rect x="60.6" y="18.0" width="18.2" height="5.5" rx="1" fill="#fc8181"/><rect x="80.8" y="18.0" width="18.2" height="9.1" rx="1" fill="#fc8181"/><rect x="101.0" y="18.0" width="18.2" height="11.0" rx="1" fill="#fc8181"/><rect x="121.2" y="2.0" width="18.2" height="16.0" rx="1" fill="#48bb78"/><rect x="141.4" y="13.7" width="18.2" height="4.3" rx="1" fill="#48bb78"/><rect x="161.6" y="18.0" width="18.2" height="16.0" rx="1" fill="#fc8181"/><rect x="181.8" y="18.0" width="18.2" height="10.8" rx="1" fill="#fc8181"/></svg>
+    </div>
+  </div>
+
+  <div class="card-metrics">
+    <div class="metric">
+      <div class="m-val red">-2.9%</div>
+      <div class="m-lbl">10d Return</div>
+    </div>
+    <div class="metric">
+      <div class="m-val">$311.10</div>
+      <div class="m-lbl">Price</div>
+    </div>
+    <div class="metric">
+      <div class="m-val">4/10</div>
+      <div class="m-lbl">Up Days</div>
+      <div class="pips"><div class="pip pip-up" title="+day"></div><div class="pip pip-up" title="+day"></div><div class="pip pip-up" title="+day"></div><div class="pip pip-up" title="+day"></div><div class="pip pip-down"></div><div class="pip pip-down"></div><div class="pip pip-down"></div><div class="pip pip-down"></div><div class="pip pip-down"></div><div class="pip pip-down"></div></div>
+    </div>
+    <div class="metric">
+      <div class="m-val red">0.8×</div>
+      <div class="m-lbl">Volume vs Avg</div>
+    </div>
+    <div class="metric">
+      <div class="m-val orange">31.6</div>
+      <div class="m-lbl">RSI</div>
+    </div>
+    <div class="metric">
+      <div class="m-val orange">-15.9%</div>
+      <div class="m-lbl">vs 52w High</div>
+    </div>
+  </div>
+
+  <div class="card-headline">💡 Approaching qualification — needs 1 more up day(s) and 12.9% more price gain</div>
+
+  <div class="card-signals">
+    <div class="signals-grid"><div class="signal-row"><span class="signal-icon">⚠️</span><span>Only <b>4/10</b> up days — trend not yet confirmed.</span></div><div class="signal-row"><span class="signal-icon">❌</span><span><b>-2.9%</b> over 10 days — negative momentum.</span></div><div class="signal-row"><span class="signal-icon">❌</span><span>Volume at <b>0.8×</b> average — below-normal, weak participation.</span></div><div class="signal-row"><span class="signal-icon">❌</span><span>RSI at <b>31.6</b> — weak / oversold territory.</span></div><div class="signal-row"><span class="signal-icon">❌</span><span>Trading <b>15.9%</b> below its 52-week high — significant distance to recover.</span></div></div>
+  </div>
+
+  <div class="card-narrative">Alnylam Pharmaceuticals, Inc. is on our watchlist for needs 1 more up day(s) (currently 4/10), needs 12.9% more price gain (currently +-2.9%). <b>Watch for:</b> continued daily gains and volume staying above average. If momentum continues for 2–3 more sessions, this stock may graduate to the High Potential list.</div>
+</div>
+<div class="stock-card card-watch">
+  <div class="card-top">
+    <div class="card-identity">
+      <div class="card-ticker">REGN <span class="badge badge-watch">👀 Watchlist</span></div>
+      <div class="card-name">Regeneron Pharmaceuticals, Inc.</div>
+      <div class="card-tags"><span class="tag">Healthcare</span><span class="tag">Biotechnology</span></div>
+    </div>
+    <div class="card-chart">
+      <div class="chart-label">10-day price</div>
+      <svg width="200" height="50" viewBox="0 0 200 50" xmlns="http://www.w3.org/2000/svg"><polygon points="4.0,19.9 23.2,24.7 42.4,4.0 61.6,13.1 80.8,10.6 100.0,37.3 119.2,38.1 138.4,27.5 157.6,25.5 176.8,39.7 196.0,46.0 196.0,46.0 4.0,46.0" fill="#e53e3e22"/><polyline points="4.0,19.9 23.2,24.7 42.4,4.0 61.6,13.1 80.8,10.6 100.0,37.3 119.2,38.1 138.4,27.5 157.6,25.5 176.8,39.7 196.0,46.0" fill="none" stroke="#e53e3e" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/><circle cx="196.0" cy="46.0" r="3.5" fill="#e53e3e"/></svg>
+      <div class="chart-label">daily returns</div>
+      <svg width="200" height="36" viewBox="0 0 200 36" xmlns="http://www.w3.org/2000/svg"><line x1="0" y1="18.0" x2="200" y2="18.0" stroke="#e2e8f0" stroke-width="1"/><rect x="0.0" y="18.0" width="18.2" height="2.9" rx="1" fill="#fc8181"/><rect x="20.2" y="5.4" width="18.2" height="12.6" rx="1" fill="#48bb78"/><rect x="40.4" y="18.0" width="18.2" height="5.4" rx="1" fill="#fc8181"/><rect x="60.6" y="16.5" width="18.2" height="1.5" rx="1" fill="#48bb78"/><rect x="80.8" y="18.0" width="18.2" height="16.0" rx="1" fill="#fc8181"/><rect x="101.0" y="18.0" width="18.2" height="0.5" rx="1" fill="#fc8181"/><rect x="121.2" y="11.4" width="18.2" height="6.6" rx="1" fill="#48bb78"/><rect x="141.4" y="16.8" width="18.2" height="1.2" rx="1" fill="#48bb78"/><rect x="161.6" y="18.0" width="18.2" height="8.7" rx="1" fill="#fc8181"/><rect x="181.8" y="18.0" width="18.2" height="4.0" rx="1" fill="#fc8181"/></svg>
+    </div>
+  </div>
+
+  <div class="card-metrics">
+    <div class="metric">
+      <div class="m-val red">-3.6%</div>
+      <div class="m-lbl">10d Return</div>
+    </div>
+    <div class="metric">
+      <div class="m-val">$737.45</div>
+      <div class="m-lbl">Price</div>
+    </div>
+    <div class="metric">
+      <div class="m-val">4/10</div>
+      <div class="m-lbl">Up Days</div>
+      <div class="pips"><div class="pip pip-up" title="+day"></div><div class="pip pip-up" title="+day"></div><div class="pip pip-up" title="+day"></div><div class="pip pip-up" title="+day"></div><div class="pip pip-down"></div><div class="pip pip-down"></div><div class="pip pip-down"></div><div class="pip pip-down"></div><div class="pip pip-down"></div><div class="pip pip-down"></div></div>
+    </div>
+    <div class="metric">
+      <div class="m-val red">0.7×</div>
+      <div class="m-lbl">Volume vs Avg</div>
+    </div>
+    <div class="metric">
+      <div class="m-val orange">37.7</div>
+      <div class="m-lbl">RSI</div>
+    </div>
+    <div class="metric">
+      <div class="m-val green">-8.1%</div>
+      <div class="m-lbl">vs 52w High</div>
+    </div>
+  </div>
+
+  <div class="card-headline">💡 Approaching qualification — needs 1 more up day(s) and 13.6% more price gain</div>
+
+  <div class="card-signals">
+    <div class="signals-grid"><div class="signal-row"><span class="signal-icon">⚠️</span><span>Only <b>4/10</b> up days — trend not yet confirmed.</span></div><div class="signal-row"><span class="signal-icon">❌</span><span><b>-3.6%</b> over 10 days — negative momentum.</span></div><div class="signal-row"><span class="signal-icon">❌</span><span>Volume at <b>0.7×</b> average — below-normal, weak participation.</span></div><div class="signal-row"><span class="signal-icon">❌</span><span>RSI at <b>37.7</b> — weak / oversold territory.</span></div><div class="signal-row"><span class="signal-icon">⚠️</span><span>Trading <b>8.1%</b> below its 52-week high — recovering but not at highs.</span></div></div>
+  </div>
+
+  <div class="card-narrative">Regeneron Pharmaceuticals, Inc. is on our watchlist for needs 1 more up day(s) (currently 4/10), needs 13.6% more price gain (currently +-3.6%). <b>Watch for:</b> continued daily gains and volume staying above average. If momentum continues for 2–3 more sessions, this stock may graduate to the High Potential list.</div>
+</div>
+<div class="stock-card card-watch">
+  <div class="card-top">
+    <div class="card-identity">
+      <div class="card-ticker">BNTX <span class="badge badge-watch">👀 Watchlist</span></div>
+      <div class="card-name">BioNTech SE</div>
+      <div class="card-tags"><span class="tag">Healthcare</span><span class="tag">Biotechnology</span></div>
+    </div>
+    <div class="card-chart">
+      <div class="chart-label">10-day price</div>
+      <svg width="200" height="50" viewBox="0 0 200 50" xmlns="http://www.w3.org/2000/svg"><polygon points="4.0,4.5 23.2,5.5 42.4,4.0 61.6,46.0 80.8,30.0 100.0,31.7 119.2,29.2 138.4,30.7 157.6,20.8 176.8,32.0 196.0,33.5 196.0,46.0 4.0,46.0" fill="#e53e3e22"/><polyline points="4.0,4.5 23.2,5.5 42.4,4.0 61.6,46.0 80.8,30.0 100.0,31.7 119.2,29.2 138.4,30.7 157.6,20.8 176.8,32.0 196.0,33.5" fill="none" stroke="#e53e3e" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/><circle cx="196.0" cy="33.5" r="3.5" fill="#e53e3e"/></svg>
+      <div class="chart-label">daily returns</div>
+      <svg width="200" height="36" viewBox="0 0 200 36" xmlns="http://www.w3.org/2000/svg"><line x1="0" y1="18.0" x2="200" y2="18.0" stroke="#e2e8f0" stroke-width="1"/><rect x="0.0" y="18.0" width="18.2" height="0.4" rx="1" fill="#fc8181"/><rect x="20.2" y="17.4" width="18.2" height="0.6" rx="1" fill="#48bb78"/><rect x="40.4" y="18.0" width="18.2" height="16.0" rx="1" fill="#fc8181"/><rect x="60.6" y="10.6" width="18.2" height="7.4" rx="1" fill="#48bb78"/><rect x="80.8" y="18.0" width="18.2" height="0.7" rx="1" fill="#fc8181"/><rect x="101.0" y="16.9" width="18.2" height="1.1" rx="1" fill="#48bb78"/><rect x="121.2" y="18.0" width="18.2" height="0.6" rx="1" fill="#fc8181"/><rect x="141.4" y="13.7" width="18.2" height="4.3" rx="1" fill="#48bb78"/><rect x="161.6" y="18.0" width="18.2" height="4.6" rx="1" fill="#fc8181"/><rect x="181.8" y="18.0" width="18.2" height="0.7" rx="1" fill="#fc8181"/></svg>
+    </div>
+  </div>
+
+  <div class="card-metrics">
+    <div class="metric">
+      <div class="m-val red">-12.4%</div>
+      <div class="m-lbl">10d Return</div>
+    </div>
+    <div class="metric">
+      <div class="m-val">$89.31</div>
+      <div class="m-lbl">Price</div>
+    </div>
+    <div class="metric">
+      <div class="m-val">4/10</div>
+      <div class="m-lbl">Up Days</div>
+      <div class="pips"><div class="pip pip-up" title="+day"></div><div class="pip pip-up" title="+day"></div><div class="pip pip-up" title="+day"></div><div class="pip pip-up" title="+day"></div><div class="pip pip-down"></div><div class="pip pip-down"></div><div class="pip pip-down"></div><div class="pip pip-down"></div><div class="pip pip-down"></div><div class="pip pip-down"></div></div>
+    </div>
+    <div class="metric">
+      <div class="m-val green">4.5×</div>
+      <div class="m-lbl">Volume vs Avg</div>
+    </div>
+    <div class="metric">
+      <div class="m-val orange">30.3</div>
+      <div class="m-lbl">RSI</div>
+    </div>
+    <div class="metric">
+      <div class="m-val orange">-25.2%</div>
+      <div class="m-lbl">vs 52w High</div>
+    </div>
+  </div>
+
+  <div class="card-headline">💡 Approaching qualification — needs 1 more up day(s) and 22.4% more price gain</div>
+
+  <div class="card-signals">
+    <div class="signals-grid"><div class="signal-row"><span class="signal-icon">⚠️</span><span>Only <b>4/10</b> up days — trend not yet confirmed.</span></div><div class="signal-row"><span class="signal-icon">❌</span><span><b>-12.4%</b> over 10 days — negative momentum.</span></div><div class="signal-row"><span class="signal-icon">✅</span><span>Volume running at <b>4.5×</b> normal — strong institutional accumulation signal.</span></div><div class="signal-row"><span class="signal-icon">❌</span><span>RSI at <b>30.3</b> — weak / oversold territory.</span></div><div class="signal-row"><span class="signal-icon">❌</span><span>Trading <b>25.2%</b> below its 52-week high — significant distance to recover.</span></div></div>
+  </div>
+
+  <div class="card-narrative">BioNTech SE is on our watchlist for needs 1 more up day(s) (currently 4/10), needs 22.4% more price gain (currently +-12.4%). The elevated volume (4.5×) is encouraging and suggests accumulation is underway. <b>Watch for:</b> continued daily gains and volume staying above average. If momentum continues for 2–3 more sessions, this stock may graduate to the High Potential list.</div>
+</div>
+
+  
+<div class="section-title" style="margin-top:32px">📋 Quick Strategy Reference</div>
+<div class="strategy-box">
+  <div class="strategy-grid">
+    <div class="strategy-item si-entry">
+      <h4>✅ Entry</h4>
+      <p>Buy the <b>first pullback</b> after a surge (1–3 days). Look for price holding the 10-day EMA on low volume.</p>
+    </div>
+    <div class="strategy-item si-stop">
+      <h4>🛑 Stop-Loss</h4>
+      <p>Hard stop at <b>−8% from entry</b>. Never move stop lower. Exit immediately if violated.</p>
+    </div>
+    <div class="strategy-item si-exit">
+      <h4>💰 Profit Target</h4>
+      <p>Sell <b>25% at +20%</b> gain. Trail the rest with a 10-day MA stop. Full exit below 50-day MA on volume.</p>
+    </div>
+    <div class="strategy-item si-size">
+      <h4>⚖️ Position Size</h4>
+      <p>Risk <b>max 1–2% of portfolio</b> per trade. Start with half size; add the rest when the move confirms.</p>
+    </div>
+  </div>
+</div>
+
+  <div class="report-footer">
+    Generated by Stock Agent · For educational purposes only · Not financial advice
+  </div>
+</div>
+</body>
+</html>
